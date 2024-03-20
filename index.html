@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Notification Receiver</title>
+    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
+  </head>
+  <body>
+    <h1>Pusher Beams Notification Receiver</h1>
+    <p>Listening for notifications...</p>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/service-worker.js")
+          .then(function (registration) {
+            console.log(
+              "Service Worker registered with scope:",
+              registration.scope
+            );
+          })
+          .catch(function (err) {
+            console.log("Service Worker registration failed:", err);
+          });
+      }
+
+      const beamsClient = new PusherPushNotifications.Client({
+        instanceId: "e65e9657-0058-4209-8067-23b825c22160",
+      });
+
+      beamsClient
+        .start()
+        .then(() => beamsClient.addDeviceInterest("ReimbursementApp"))
+        .then(() =>
+          console.log("Successfully subscribed to interest `ReimbursementApp`")
+        )
+        .catch(console.error);
+
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        console.log("event", event);
+        // Updated to match the new payload structure
+        const { title, body } = event.data.data; // Corrected to access 'body' instead of 'description'
+        console.log(`Message from service worker: ${title}, ${body}`);
+        alert(`New notification - ${title}: ${body}`);
+      });
+    </script>
+  </body>
+</html>
